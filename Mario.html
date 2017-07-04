@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>超级玛丽奥-canvas 行走</title>
+</head>
+<body>
+<canvas id="demo" width="800"
+height="400" style="border:1px solid blue;margin:50px auto;display:block;">
+ 您的浏览器还不支持canvas
+</canvas>
+<script>
+// 元素何时ready?
+// console.log(canvas);
+// 标志着页面全部加载完成,着手js交互
+// 事件是异步的，非立即执行，钩子，当预定义事件发生，
+// 回调函数被执行。
+// 事件监听 在主线程挂了钩子，不是现在执行，而是在
+// 事件发生后，异步。从线程里取出钩子，执行约定的函数
+// ＪＳ是一门事件驱动型语言
+// 阻塞页面的下载。
+function getDirection (e) {
+    var keyCode = e.keyCode;
+    var direction;  //undefined  null
+    switch(keyCode) {
+        case 37:
+            direction = 'left';
+        break;
+        case 38:
+            direction = 'up';
+        break;
+        case 39:
+            direction = 'right';
+        break;
+        case 40:
+            direction = 'down'
+        break;
+    }
+    return direction;
+}
+
+// 函数作用域, 局部的变量空间
+window.onload = function() {
+    var canvas = document.querySelector('#demo');
+    var context = canvas.getContext('2d');
+    var mario = new Image();
+    mario.src = 'http://static.blueidea.com/attachment/forum/201207/03/180652md4ydy2txwotdd7l.png';
+    // 图片在远程url, http请求,下载， 100%
+    mario.onload = function() {
+        drawMario();
+    }
+    // 用json来做配置
+
+    var player = {
+        // 大小
+        width: 50,
+        height: 60,
+        // 坐标
+        x: 50,
+        y: 0,
+        // 剪裁图片开始的位置
+        imageX: 0,
+        imageY: 0,
+        stop:true
+    }
+    function drawMario () {
+        context.drawImage(mario,player.imageX,
+        player.imageY,player.width,
+        player.height,player.x,
+        canvas.height-player.height,
+        player.width,player.height);
+    }
+
+    function playerMove(direction){
+        // 擦除
+        clean();
+        // setTimeout(function(){
+        //
+        // player.x += 10;
+        // player.imageX += 50;
+        if(player.stop){
+          player.imageX = 0
+        }else{
+          player.imageX += 50;
+        }
+        if (player.imageX >= 150) {
+            player.imageX = 0;
+        }
+        if (direction === 'right') {
+            player.x += 5;
+            player.imageY = 0;
+        } else {
+            player.x -= 5;
+            player.imageY = 60;
+        }
+        drawMario();
+        // },2000)
+        // 在新的位置画上
+    }
+    function clean(){
+      context.clearRect(0,0,canvas.width,canvas.height);
+    }
+
+    function playAction(direction) {
+        var posX = 0;
+        if (direction === 'right') {
+        //向前走
+        // player.x + 步增量
+            posX = player.x + player.width;
+            playerMove(direction)
+        } else if (direction === 'left') {
+        //向后退
+        playerMove(direction)
+        // player.x － 步增量
+        }
+    }
+    // 任务一按键事件
+    document.addEventListener('keydown',
+     function (e) {
+        // 事件对象，回调函数的第一个参数
+        // 提供了解决事件的细节
+        // 事件对象在触发事件的瞬间产生
+        // console.log(e)
+        var direction = getDirection(e);
+        player.stop = false;
+        playAction(direction);
+     })
+    document.addEventListener('keyup',function(e){
+        player.stop = true;
+        playAction(direction);
+    })
+}
+</script>
+</body>
+</html>
